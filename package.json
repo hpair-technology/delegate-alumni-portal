@@ -1,0 +1,29 @@
+{
+  "dependencies": {
+    "firebase": "^12.8.0"
+  },
+  "name": "alumni-portal",
+  "version": "1.0.0",
+  "description": "Single-page alumni portal with Firebase auth, online presence, and user registry.",
+  "main": "app.js",
+  "devDependencies": {
+    "vite": "^7.3.1"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hpair-technology/alumni-portal.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/hpair-technology/alumni-portal/issues"
+  },
+  "homepage": "https://github.com/hpair-technology/alumni-portal#readme"
+}

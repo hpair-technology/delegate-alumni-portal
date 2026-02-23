@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HPAIR Alumni Portal</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://unpkg.com/cropperjs/dist/cropper.css">
+</head>
+<body class="min-h-screen bg-rose-50 text-slate-900">
+  <main class="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-6 sm:px-6 sm:py-8">
+    <header class="rounded-2xl border border-rose-900/40 bg-gradient-to-br from-rose-900 via-rose-800 to-rose-950 p-5 text-rose-50 shadow-lg shadow-rose-900/20 sm:p-6">
+      <h1 class="text-xl font-semibold tracking-tight sm:text-2xl">HPAIR Alumni Portal</h1>
+      <p class="mt-2 text-sm text-rose-100/90">Register or log in with an approved alumni email.</p>
+    </header>
+
+    <section id="auth-section" class="rounded-2xl border border-rose-200/70 bg-white p-6 shadow-lg shadow-rose-900/10">
+      <div class="grid gap-8 md:grid-cols-2">
+        <div class="space-y-4">
+          <h2 class="text-lg font-semibold text-slate-900">Create Account</h2>
+          <form id="register-form" class="flex flex-col gap-4">
+            <label class="flex flex-col gap-2 text-sm font-semibold text-slate-700">
+              Email
+              <input id="register-email" class="w-full rounded-lg border border-rose-200 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm focus:border-rose-500 focus:outline-none focus:ring-2 focus:ring-rose-200" type="email" required autocomplete="email">
+            </label>
+            <label class="flex flex-col gap-2 text-sm font-semibold text-slate-700">
+              Password
+              <input id="register-password" class="w-full rounded-lg border border-rose-200 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm focus:border-rose-500 focus:outline-none focus:ring-2 focus:ring-rose-200" type="password" required minlength="6" autocomplete="new-password">
+            </label>
+            <button type="submit" class="inline-flex items-center justify-center rounded-xl bg-rose-800 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-rose-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose-600">Register</button>
+            <p class="text-sm text-slate-500">Only emails in alumni_portal.csv are allowed.</p>
+          </form>
+        </div>
+
+        <div class="space-y-4">
+          <h2 class="text-lg font-semibold text-slate-900">Log In</h2>
+          <form id="login-form" class="flex flex-col gap-4">
+            <label class="flex flex-col gap-2 text-sm font-semibold text-slate-700">
+              Email
+              <input id="login-email" class="w-full rounded-lg border border-rose-200 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm focus:border-rose-500 focus:outline-none focus:ring-2 focus:ring-rose-200" type="email" required autocomplete="email">
+            </label>
+            <label class="flex flex-col gap-2 text-sm font-semibold text-slate-700">
+              Password
+              <input id="login-password" class="w-full rounded-lg border border-rose-200 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm focus:border-rose-500 focus:outline-none focus:ring-2 focus:ring-rose-200" type="password" required autocomplete="current-password">
+            </label>
+            <button type="submit" class="inline-flex items-center justify-center rounded-xl bg-rose-800 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-rose-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose-600">Log In</button>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <section id="user-section" class="hidden rounded-2xl border border-rose-200/70 bg-white p-6 shadow-lg shadow-rose-900/10">
+      <div class="flex flex-col items-start gap-4 sm:flex-row sm:items-center">
+        <img id="user-headshot" class="h-20 w-20 rounded-full bg-rose-100 object-cover shadow" src="" alt="User headshot">
+        <div class="space-y-1">
+          <p id="signed-in-as" class="text-sm text-slate-500">Signed in as —</p>
+          <p id="user-email" class="text-sm font-semibold text-slate-900"></p>
+          <div class="mt-2 flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
+            <button id="edit-profile-btn" class="inline-flex w-full items-center justify-center rounded-xl border border-rose-200 bg-white px-4 py-2 text-sm font-semibold text-rose-800 shadow-sm transition hover:bg-rose-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose-600 sm:w-auto">Edit Profile</button>
+            <button id="logout-btn" class="inline-flex w-full items-center justify-center rounded-xl bg-rose-800 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-rose-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose-600 sm:w-auto">Log Out</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-10 space-y-4">
+        <div class="space-y-2">
+          <h3 class="text-lg font-semibold text-slate-900">All registered users</h3>
+          <p class="text-sm text-slate-500">List of every account that has been created.</p>
+          <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            <input type="text" id="search-name" class="w-full rounded-lg border border-rose-200 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm focus:border-rose-500 focus:outline-none focus:ring-2 focus:ring-rose-200" placeholder="Search by name…">
+            <input type="number" id="search-year" class="w-full rounded-lg border border-rose-200 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm focus:border-rose-500 focus:outline-none focus:ring-2 focus:ring-rose-200" placeholder="Filter by graduation year…" min="1900" max="2100">
+            <select id="search-industry" class="w-full rounded-lg border border-rose-200 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm focus:border-rose-500 focus:outline-none focus:ring-2 focus:ring-rose-200">
+              <option value="">All industries</option>
+              <option value="Academia/Research">Academia/Research</option>
+              <option value="Arts/Entertainment">Arts/Entertainment</option>
+              <option value="Engineering">Engineering</option>
+              <option value="Financial Services (including Private Equity/Hedge Funds)">Financial Services</option>
+              <option value="Government/Politics">Government/Politics</option>
+              <option value="Healthcare">Healthcare</option>
+              <option value="Management Consulting">Management Consulting</option>
+              <option value="Media">Media</option>
+              <option value="Non-Profit/Social Enterprise">Non-Profit/Social Enterprise</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="registered-body" class="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"></div>
+      </div>
+
+    </section>
+
+    <section id="messages" class="hidden rounded-2xl border border-rose-200/70 bg-white p-4 text-sm shadow-sm"></section>
+  </main>
+
+  <script src="https://unpkg.com/cropperjs/dist/cropper.js"></script>
+  <script type="module" src="./app.js?v=2"></script>
+
+  <div id="user-detail-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+    <div class="relative w-full max-w-md rounded-2xl bg-white p-6 text-center shadow-xl">
+      <button id="close-modal" class="absolute right-4 top-4 text-2xl text-slate-500 transition hover:text-slate-700" aria-label="Close profile details">&times;</button>
+      <img id="detail-headshot" class="mx-auto h-24 w-24 rounded-full object-cover shadow" src="" alt="Headshot">
+      <h2 id="detail-name" class="mt-4 text-xl font-semibold text-slate-900">Name</h2>
+      <p id="detail-email" class="mt-2 text-sm text-slate-600">Email</p>
+      <p id="detail-gradyear" class="mt-1 text-sm text-slate-600">Grad Year</p>
+      <p id="detail-bio" class="mt-3 text-sm text-slate-600"></p>
+      <p id="detail-industries" class="mt-3 text-sm text-slate-600">Industries: </p>
+    </div>
+  </div>
+
+  <div id="profile-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+    <div class="relative w-full max-w-2xl rounded-2xl bg-white p-5 shadow-xl sm:p-6">
+      <button id="close-profile-modal" class="absolute right-4 top-4 text-2xl text-slate-500 transition hover:text-slate-700" aria-label="Close profile editor">&times;</button>
+      <h3 class="text-lg font-semibold text-slate-900">Edit Profile</h3>
+
+      <form id="profile-form" class="mt-4 flex flex-col gap-4">
+        <label class="flex flex-col gap-2 text-sm font-semibold text-slate-700">
+          Full name
+          <input id="profile-name" class="w-full rounded-lg border border-rose-200 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm focus:border-rose-500 focus:outline-none focus:ring-2 focus:ring-rose-200" type="text" placeholder="Your name">
+        </label>
+
+        <label class="flex flex-col gap-2 text-sm font-semibold text-slate-700">
+          Graduation year
+          <input id="profile-year" class="w-full rounded-lg border border-rose-200 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm focus:border-rose-500 focus:outline-none focus:ring-2 focus:ring-rose-200" type="number" min="1900" max="2100">
+        </label>
+
+        <label class="flex flex-col gap-2 text-sm font-semibold text-slate-700">
+          Headshot
+          <input id="profile-headshot" class="w-full rounded-lg border border-rose-200 bg-white px-3 py-2 text-sm text-slate-700 shadow-sm file:mr-4 file:rounded-lg file:border-0 file:bg-rose-100 file:px-3 file:py-2 file:text-sm file:font-semibold file:text-rose-900 hover:file:bg-rose-200" type="file" accept="image/*">
+        </label>
+
+        <label class="flex flex-col gap-2 text-sm font-semibold text-slate-700">
+          Bio
+          <textarea id="profile-bio" class="w-full rounded-lg border border-rose-200 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm focus:border-rose-500 focus:outline-none focus:ring-2 focus:ring-rose-200" rows="4" placeholder="Share a short bio"></textarea>
+        </label>
+
+        <fieldset id="profile-industries" class="mt-2 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+          <legend class="mb-2 text-sm font-semibold text-slate-700">Industries you have experience in</legend>
+
+          <label class="flex items-center gap-2 text-sm text-slate-700"><input type="checkbox" value="Academia/Research" class="h-4 w-4 rounded border-rose-300 text-rose-700 focus:ring-rose-200"> Academia/Research</label>
+          <label class="flex items-center gap-2 text-sm text-slate-700"><input type="checkbox" value="Arts/Entertainment" class="h-4 w-4 rounded border-rose-300 text-rose-700 focus:ring-rose-200"> Arts/Entertainment</label>
+          <label class="flex items-center gap-2 text-sm text-slate-700"><input type="checkbox" value="Engineering" class="h-4 w-4 rounded border-rose-300 text-rose-700 focus:ring-rose-200"> Engineering</label>
+          <label class="flex items-center gap-2 text-sm text-slate-700"><input type="checkbox" value="Financial Services (including Private Equity/Hedge Funds)" class="h-4 w-4 rounded border-rose-300 text-rose-700 focus:ring-rose-200"> Financial Services</label>
+          <label class="flex items-center gap-2 text-sm text-slate-700"><input type="checkbox" value="Government/Politics" class="h-4 w-4 rounded border-rose-300 text-rose-700 focus:ring-rose-200"> Government/Politics</label>
+          <label class="flex items-center gap-2 text-sm text-slate-700"><input type="checkbox" value="Healthcare" class="h-4 w-4 rounded border-rose-300 text-rose-700 focus:ring-rose-200"> Healthcare</label>
+          <label class="flex items-center gap-2 text-sm text-slate-700"><input type="checkbox" value="Management Consulting" class="h-4 w-4 rounded border-rose-300 text-rose-700 focus:ring-rose-200"> Management Consulting</label>
+          <label class="flex items-center gap-2 text-sm text-slate-700"><input type="checkbox" value="Media" class="h-4 w-4 rounded border-rose-300 text-rose-700 focus:ring-rose-200"> Media</label>
+          <label class="flex items-center gap-2 text-sm text-slate-700"><input type="checkbox" value="Non-Profit/Social Enterprise" class="h-4 w-4 rounded border-rose-300 text-rose-700 focus:ring-rose-200"> Non-Profit/Social Enterprise</label>
+
+          <label class="flex items-center gap-2 text-sm text-slate-700 sm:col-span-2 lg:col-span-3">
+            <input type="checkbox" value="Other" id="other-checkbox" class="h-4 w-4 rounded border-rose-300 text-rose-700 focus:ring-rose-200"> Other
+            <input type="text" id="other-text" class="ml-2 flex-1 rounded-lg border border-rose-200 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm focus:border-rose-500 focus:outline-none focus:ring-2 focus:ring-rose-200 disabled:bg-slate-100" placeholder="Specify industry" disabled>
+          </label>
+        </fieldset>
+
+        <button type="submit" class="inline-flex items-center justify-center rounded-xl bg-rose-800 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-rose-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose-600">Save Profile</button>
+        <p class="text-sm text-slate-500">This information is visible to other alumni.</p>
+      </form>
+    </div>
+  </div>
+
+  <div id="crop-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+    <div class="relative w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl">
+      <button id="crop-close" class="absolute right-4 top-4 text-2xl text-slate-500 transition hover:text-slate-700" aria-label="Close crop modal">&times;</button>
+
+      <h3 class="text-lg font-semibold text-slate-900 mb-4">Crop your headshot</h3>
+
+      <div class="w-full overflow-hidden rounded-lg">
+        <img id="crop-image" class="w-full" src="" alt="Crop preview">
+      </div>
+
+      <div class="mt-4 flex justify-end gap-2">
+        <button id="crop-cancel" type="button" class="px-4 py-2 rounded bg-gray-200 text-gray-700 hover:bg-gray-300">Cancel</button>
+        <button id="crop-save" type="button" class="px-4 py-2 rounded bg-rose-600 text-white hover:bg-rose-700">Use photo</button>
+      </div>
+    </div>
+  </div>
+  
+  <link
+    href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css"
+    rel="stylesheet"
+  />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+
+</body>
+</html>
+
