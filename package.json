@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "firebase": "^12.8.0"
+    "firebase": "^12.9.0"
   },
   "name": "alumni-portal",
   "version": "1.0.0",

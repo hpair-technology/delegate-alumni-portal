@@ -1,0 +1,7 @@
+Features to include:
+1. Ambassador application; questions from multimedia
+2. Database of alumni
+3. Career opportunities/place for delegates to share resources
+4. Milestones newsletter section
+5. Link to an open Slack-type channel for alumni
+6. Landing page: world map with delegate demographics based on proportional size

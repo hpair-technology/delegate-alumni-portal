@@ -222,7 +222,7 @@ function setFormDisabled(formEl, disabled) {
 }
 
 async function loadAllowlist() {
-  return fetch("/alumni_portal.csv")
+  return fetch("/delegate_alumni_portal.csv")
     .then((res) => {
       if (!res.ok) throw new Error("Unable to load alumni allowlist.");
       return res.text();
