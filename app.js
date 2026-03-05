@@ -15,8 +15,6 @@ import {
   setDoc,
   onSnapshot,
   collection,
-  query,
-  orderBy,
   serverTimestamp,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
@@ -193,7 +191,6 @@ searchYearInput.addEventListener("input", renderRegisteredUsers);
 searchIndustryInput.addEventListener("change", renderRegisteredUsers);
 
 let registeredUnsubscribe = null;
-let presenceUnsubscribe = null;
 let unloadHandlerAttached = false;
 let currentUser = null;
 let allUsers = [];
@@ -240,6 +237,30 @@ async function loadAllowlist() {
     });
 }
 
+async function ensureUserDocument(user) {
+  if (!user) return;
+
+  const userRef = doc(db, "users", user.uid);
+  const userSnap = await getDoc(userRef);
+
+  if (userSnap.exists()) return;
+
+  await setDoc(
+    userRef,
+    {
+      email: user.email || "",
+      name: "",
+      gradYear: "",
+      headshotUrl: "",
+      bio: "",
+      industries: [],
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+    },
+    { merge: true }
+  );
+}
+
 registerForm.addEventListener("submit", async (event) => {
   event.preventDefault();
   showMessage("");
@@ -258,15 +279,7 @@ registerForm.addEventListener("submit", async (event) => {
     try {
       const userCred = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCred.user;
-
-      await setDoc(doc(db, "users", user.uid), {
-        email: user.email,
-        name: "",
-        gradYear: "",
-        headshotUrl: "",
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp()
-      });
+      await ensureUserDocument(user);
 
       showMessage("Registration complete. You are signed in.");
     } catch (err) {
@@ -400,6 +413,25 @@ function showPresencePlaceholder(text) {
   presenceBody.innerHTML = `<tr><td colspan="2" class="px-4 py-6 text-sm text-slate-500">${text}</td></tr>`;
 }
 
+function renderPresenceFromUsers() {
+  if (!presenceBody) return;
+  const withStatus = allUsers.filter(u => u.status != null || u.lastSeen != null);
+  if (!withStatus.length) {
+    showPresencePlaceholder("No users with status yet.");
+    return;
+  }
+  const rows = withStatus
+    .map((u) => {
+      const status = u.status || "offline";
+      const lastSeen = u.lastSeen?.toDate
+        ? u.lastSeen.toDate().toLocaleString()
+        : (u.lastSeen ? String(u.lastSeen) : "—");
+      return `<tr><td>${u.email || "Unknown"}</td><td>${status} · ${lastSeen}</td></tr>`;
+    })
+    .join("");
+  presenceBody.innerHTML = rows;
+}
+
 function startRegisteredListener() {
   stopRegisteredListener();
   const q = collection(db, "users");
@@ -407,11 +439,14 @@ function startRegisteredListener() {
     q,
     (snapshot) => {
       if (snapshot.empty) {
+        allUsers = [];
         showRegisteredPlaceholder("No registered users yet.");
+        renderPresenceFromUsers();
         return;
       }
       allUsers = snapshot.docs.map(docSnap => ({ uid: docSnap.id, ...docSnap.data() }));
       renderRegisteredUsers();
+      renderPresenceFromUsers();
     },
     (err) => {
       showRegisteredPlaceholder("Unable to load registered users.");
@@ -499,58 +534,22 @@ function stopRegisteredListener() {
   }
 }
 
-function startPresenceListener() {
-  if (!presenceBody) return;
-  stopPresenceListener();
-  const q = query(collection(db, "presence"), orderBy("email"));
-  presenceUnsubscribe = onSnapshot(
-    q,
-    (snapshot) => {
-      if (snapshot.empty) {
-        showPresencePlaceholder("No users recorded yet.");
-        return;
-      }
-      const rows = snapshot.docs
-        .map((docSnap) => docSnap.data())
-        .map((data) => {
-          const status = data.status || "offline";
-          const lastSeen = data.lastSeen?.toDate
-            ? data.lastSeen.toDate().toLocaleString()
-            : "—";
-          return `<tr><td>${data.email || "Unknown"}</td><td>${status} · ${lastSeen}</td></tr>`;
-        })
-        .join("");
-      presenceBody.innerHTML = rows;
-    },
-    (err) => {
-      showPresencePlaceholder("Unable to load presence.");
-      showMessage(err.message || "Presence subscription failed.", true);
-    }
-  );
-}
-
-function stopPresenceListener() {
-  if (presenceUnsubscribe) {
-    presenceUnsubscribe();
-    presenceUnsubscribe = null;
-  }
-}
-
 async function setPresenceOnline(user) {
   if (!user) return;
   try {
     await setDoc(
-      doc(db, "presence", user.uid),
+      doc(db, "users", user.uid),
       {
         email: user.email,
         status: "online",
         lastSeen: serverTimestamp(),
+        updatedAt: serverTimestamp(),
       },
       { merge: true }
     );
     attachUnloadHandler();
   } catch (err) {
-    showMessage(err.message || "Failed to update presence.", true);
+    showMessage(err.message || "Failed to update status.", true);
   }
 }
 
@@ -558,11 +557,12 @@ async function setPresenceOffline(user) {
   if (!user) return;
   try {
     await setDoc(
-      doc(db, "presence", user.uid),
+      doc(db, "users", user.uid),
       {
         email: user.email,
         status: "offline",
         lastSeen: serverTimestamp(),
+        updatedAt: serverTimestamp(),
       },
       { merge: true }
     );
@@ -590,12 +590,12 @@ onAuthStateChanged(auth, async (user) => {
     userEmail.textContent = user.email || "";
     showMessage("Signed in.");
     try {
+      await ensureUserDocument(user);
       await setPresenceOnline(user);
     } catch (err) {
       console.warn("Presence update failed:", err);
     }
     startRegisteredListener();
-    startPresenceListener();
     getDoc(doc(db, "users", user.uid))
       .then((profileSnap) => {
         if (profileSnap.exists()) {
@@ -656,7 +656,6 @@ onAuthStateChanged(auth, async (user) => {
   } else {
     console.log("Auth state changed: user logged out");
     stopRegisteredListener();
-    stopPresenceListener();
     showRegisteredPlaceholder("Please log in to see registered users.");
     authSection.classList.remove("hidden");
     userSection.classList.add("hidden");
