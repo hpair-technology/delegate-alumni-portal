@@ -5,3 +5,52 @@ Features to include:
 4. Milestones newsletter section
 5. Link to an open Slack-type channel for alumni
 6. Landing page: world map with delegate demographics based on proportional size
+
+B1. Forgot password
+B2. Fix permissions
+
+getting a full framework of the website done by July 13
+most time between July 13 and August 9
+
+feature testing; June 2 (some features)
+
+run all airtable responses through GPT-zero
+
+Google form embedded into the page
+HPAIR-specific opportunities (e.g. bidding for future ACONF hosting)
+file upload for rather than image url / external link for image uploads
+serious tech questions for community chat (but prioritize other features)
+
+Mandatory instructions/link + expiration date
+Editing past posts
+Conference library photos (google form photos --> upload to database?)
+
+Ongoing conference feedback form embedded as a google form in one of the pages
++ spot for testimonials / alumni experiences (talk with multimedia)
+
+
+HPAIR-specific opportunities (e.g. bidding for future ACONF hosting)
+file upload for rather than image url / external link for image uploads
+Ongoing conference feedback form embedded as a google form in one of the pages
+Conference library photos (google form for photos --> we choose to upload to database on a tab when logged in)
+
+
+DE for forms and FAQs / ambassador application
+Bidding for future ACONF hosting (CR)
+ACONF photo library (multimedia)
+Alumni community chat: FAQs
+
+Firestore
+Loop me in on these things
+Fix the H placeholder logo
+alumni.hpair.org
+
+LinkedIn integration, organization/organisation
+Is there any way to add a bot for auto-moderation? (keywords etc.)
+disabling community chat feature
+
+sudden influx of people on website
+stable and look into technical issues
+launch before the conference
+Can we also make this website into a QR code and have ACONF delegates join this year at closing ceremonny
+https://docs.google.com/document/d/1T54lixGnY-2HYF6h6g9qDpWaDQq1yTfE6nhhhMPODqw/edit?tab=t.0

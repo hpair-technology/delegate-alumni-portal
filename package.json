@@ -7,6 +7,7 @@
   "description": "Single-page alumni portal with Firebase auth, online presence, and user registry.",
   "main": "app.js",
   "devDependencies": {
+    "playwright": "^1.60.0",
     "vite": "^7.3.1"
   },
   "scripts": {

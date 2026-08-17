@@ -1,0 +1,66 @@
+rules_version = '2';
+
+// ============================================================================
+// HPAIR Delegate Alumni Portal: Cloud Storage security rules
+// Deploy with:  firebase deploy --only storage
+// (or paste into Firebase console → Storage → Rules)
+// ============================================================================
+
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    function signedIn() { return request.auth != null; }
+    function uid()      { return request.auth.uid; }
+    function isStaff() {
+      return signedIn()
+             && request.auth.token.email != null
+             && request.auth.token.email.lower() in ['tech-help@hpair.org', 'finance@hpair.org'];
+    }
+    function isImage()  { return request.resource.contentType.matches('image/.*'); }
+    function under(mb)  { return request.resource.size < mb * 1024 * 1024; }
+
+    // Profile headshots: one file per user, named after their uid.
+    match /headshots/{userId} {
+      allow read: if signedIn();
+      allow write: if signedIn() && userId == uid() && isImage() && under(5);
+    }
+
+    // Career Hub attachments (job descriptions, flyers, one-pagers).
+    match /opportunities/{userId}/{fileName} {
+      allow read: if signedIn();
+      allow write: if signedIn() && userId == uid() && under(8)
+                   && (isImage() || request.resource.contentType == 'application/pdf');
+    }
+
+    // Ambassador application uploads: writable by the applicant, readable
+    // by the applicant and staff.
+    match /ambassador/{userId}/{fileName} {
+      allow read:  if isStaff() || (signedIn() && userId == uid());
+      allow write: if signedIn() && userId == uid() && under(8);
+    }
+
+    // Milestone cover images (staff authored).
+    match /milestones/{fileName} {
+      allow read: if signedIn();
+      allow write: if isStaff() && isImage() && under(8);
+    }
+
+    // Conference photo library: what the team has published.
+    match /library/{fileName} {
+      allow read: if signedIn();
+      allow write: if isStaff() && isImage() && under(8);
+    }
+
+    // Photos alumni upload from the portal, pending review. Readable by every
+    // signed-in alum so the review queue and the published library can show
+    // the same file without the team having to re-upload it.
+    match /photo_submissions/{userId}/{fileName} {
+      allow read:  if signedIn();
+      allow write: if signedIn() && userId == uid() && isImage() && under(8);
+    }
+
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

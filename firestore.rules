@@ -1,0 +1,146 @@
+rules_version = '2';
+
+// ============================================================================
+// HPAIR Delegate Alumni Portal: Firestore security rules
+// Deploy with:  firebase deploy --only firestore:rules
+// (or paste into Firebase console → Firestore Database → Rules)
+//
+// Model: everything is private to signed-in alumni. People own their own
+// profile, their own posts and their own application. Admins can moderate.
+// ============================================================================
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ---- helpers ---------------------------------------------------------
+    function signedIn() {
+      return request.auth != null;
+    }
+    function uid() {
+      return request.auth.uid;
+    }
+    // Accounts that always have admin rights. Guarded because not every
+    // auth token carries an email claim.
+    function isStaffEmail() {
+      return signedIn()
+             && request.auth.token.email != null
+             && request.auth.token.email.lower() in ['tech-help@hpair.org', 'finance@hpair.org'];
+    }
+    // Anyone can additionally be promoted by setting role:"admin" on their
+    // users/{uid} document (only another admin can write that field).
+    function isAdmin() {
+      return signedIn() && (
+        isStaffEmail() ||
+        (exists(/databases/$(database)/documents/users/$(uid())) &&
+         get(/databases/$(database)/documents/users/$(uid())).data.role == 'admin')
+      );
+    }
+    function changedKeys() {
+      return request.resource.data.diff(resource.data).affectedKeys();
+    }
+
+    // ---- alumni profiles -------------------------------------------------
+    match /users/{userId} {
+      allow read: if signedIn();
+
+      // You may create and edit your own profile, but you cannot grant
+      // yourself the admin role; only an existing admin can do that.
+      allow create: if isAdmin() || (
+        signedIn() && userId == uid()
+        && request.resource.data.get('role', '') != 'admin'
+      );
+
+      allow update: if isAdmin() || (
+        signedIn() && userId == uid()
+        && !( 'role' in changedKeys() )
+      );
+
+      allow delete: if isAdmin() || (signedIn() && userId == uid());
+    }
+
+    // ---- online presence -------------------------------------------------
+    match /presence/{userId} {
+      allow read:  if signedIn();
+      allow write: if signedIn() && userId == uid();
+    }
+
+    // ---- community chat --------------------------------------------------
+    match /community_messages/{messageId} {
+      allow read: if signedIn();
+
+      allow create: if signedIn()
+                    && request.resource.data.authorUid == uid()
+                    && request.resource.data.text is string
+                    && request.resource.data.text.size() > 0
+                    && request.resource.data.text.size() <= 800;
+
+      // Anyone signed in may add/remove their own reaction; nothing else
+      // about someone else's message can be edited.
+      allow update: if isAdmin()
+                    || (signedIn() && resource.data.authorUid == uid())
+                    || (signedIn() && changedKeys().hasOnly(['reactions']));
+
+      allow delete: if isAdmin() || (signedIn() && resource.data.authorUid == uid());
+    }
+
+    // ---- career hub ------------------------------------------------------
+    match /opportunities/{oppId} {
+      allow read: if signedIn();
+      allow create: if signedIn()
+                    && request.resource.data.posterUid == uid()
+                    && request.resource.data.title is string
+                    && request.resource.data.title.size() > 0;
+      allow update, delete: if isAdmin() || (signedIn() && resource.data.posterUid == uid());
+    }
+
+    // ---- milestones / newsletter (admin authored) ------------------------
+    match /milestones/{postId} {
+      allow read: if signedIn();
+      allow create, update, delete: if isAdmin();
+    }
+
+    // ---- conference photo library (admin curated) ------------------------
+    // Alumni upload photos straight from the portal, but their submissions
+    // land as status:"pending" and only an admin can flip one to published or
+    // change anything else about it. Admins can add published photos directly.
+    match /library_photos/{photoId} {
+      allow read: if signedIn();
+
+      allow create: if isAdmin() || (
+        signedIn()
+        && request.resource.data.uploaderUid == uid()
+        && request.resource.data.status == 'pending'
+        && request.resource.data.imageUrl is string
+      );
+
+      // A submitter may withdraw their own photo while it is still pending;
+      // once published, only an admin can touch it.
+      allow delete: if isAdmin() || (
+        signedIn()
+        && resource.data.get('status', '') == 'pending'
+        && resource.data.uploaderUid == uid()
+      );
+
+      allow update: if isAdmin();
+    }
+
+    // ---- ambassador form + Google Form links (admin authored) ------------
+    match /config/{docId} {
+      allow read: if signedIn();
+      allow write: if isAdmin();
+    }
+
+    // ---- ambassador submissions -----------------------------------------
+    // One submission per alum: the document id IS their uid.
+    match /ambassador_submissions/{userId} {
+      allow read:   if isAdmin() || (signedIn() && userId == uid());
+      allow create: if signedIn() && userId == uid() && request.resource.data.uid == uid();
+      allow update, delete: if isAdmin();
+    }
+
+    // ---- default deny ----------------------------------------------------
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

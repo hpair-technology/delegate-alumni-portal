@@ -1,1 +1,20 @@
+# Dependencies: reinstalled from package-lock.json, never committed.
+node_modules/
+
+# Build output: Cloudflare Pages runs `npm run build` itself.
+dist/
+
+# Local Firebase project overrides (see .env.example)
+.env
+.env.local
+.env.*.local
+
+# Firebase CLI local state and logs
+.firebase/
+firebase-debug.log
+firestore-debug.log
+
 .vercel
+*.log
+.DS_Store
+Thumbs.db
