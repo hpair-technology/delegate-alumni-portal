@@ -2,8 +2,8 @@
 
 A two-page site for HPAIR delegate alumni:
 
-- **`home.html`** — the public landing page (dark crimson + gold, spinning 3D globe of every Asia Conference host city, FAQ).
-- **`index.html`** — the portal itself: sign-in, alumni directory, career hub, milestones, community chat and the ambassador application.
+- **`index.html`** — the public landing page, served at `/` (dark crimson + gold, spinning 3D globe of every Asia Conference host city, FAQ).
+- **`portal.html`** — the portal itself, served at `/portal`: sign-in, alumni directory, career hub, milestones, the conference photo library, community chat and the ambassador application.
 
 Everything is plain HTML/CSS/JS with Firebase (Auth + Firestore + Storage). There is no framework and no CSS build step.
 
@@ -11,7 +11,7 @@ Everything is plain HTML/CSS/JS with Firebase (Auth + Firestore + Storage). Ther
 
 ## Running it
 
-The site must be served over `http://` — opening `index.html` from the file system will break the alumni-allowlist fetch and the ES modules.
+The site must be served over `http://`; opening the HTML from the file system breaks the alumni-allowlist fetch and the ES modules.
 
 ```bash
 npm install
@@ -113,8 +113,8 @@ Similarly, if a Storage upload is rejected, small images fall back to being stor
 
 | File | Purpose |
 |---|---|
-| `home.html` | Public landing page + its scoped styles |
-| `index.html` | Portal markup: auth screen, five tabs, all modals |
+| `index.html` | Public landing page + its scoped styles, served at `/` |
+| `portal.html` | Portal markup: auth screen, six tabs, all modals, served at `/portal` |
 | `app.js` | Auth, allowlist, Firestore stores, and every feature's logic |
 | `globe.js` | 3D globe, host-city timeline, scroll effects, mobile nav |
 | `styles.css` | Shared design tokens + the whole portal component system |
@@ -133,4 +133,4 @@ Similarly, if a Storage upload is rejected, small images fall back to being stor
 - **Ambassador form** is admin-built: short/long answer, single choice, checkboxes and file upload. Questions can be reordered, applications can be closed, and submissions export to CSV.
 - **Photo library** takes uploads from any alum: files go straight from their device to Storage as `status: "pending"` and appear in an admin-only review strip above the library, where the team publishes or declines each one. Admins uploading through "Add photos" publish immediately. Nothing on the site asks anyone for an image URL or an external link.
 - **Presence** marks someone online for 5 minutes after their last heartbeat; the directory and community tab both show who is around.
-- **Deep links**: `index.html#career`, `#milestones`, `#community`, `#ambassador` open straight to that tab.
+- **Deep links**: `/portal#alumni`, `#career`, `#milestones`, `#conference`, `#community`, `#ambassador` open straight to that tab. The landing page links to five of the six.

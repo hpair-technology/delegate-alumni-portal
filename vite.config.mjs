@@ -13,10 +13,11 @@ export default defineConfig({
     outDir: "dist",
     emptyOutDir: true,
     rollupOptions: {
-      // Two entry points: the portal app and the public landing page.
+      // Two entry points. index.html is the public landing page, so it is
+      // what visitors get at /; the signed-in app lives at /portal.
       input: {
         index: resolve(__dirname, "index.html"),
-        home: resolve(__dirname, "home.html"),
+        portal: resolve(__dirname, "portal.html"),
       },
     },
   },

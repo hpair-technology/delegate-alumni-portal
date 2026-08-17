@@ -4,7 +4,7 @@
   },
   "name": "alumni-portal",
   "version": "1.0.0",
-  "description": "Single-page alumni portal with Firebase auth, online presence, and user registry.",
+  "description": "HPAIR delegate alumni portal: public landing page at / and a Firebase-backed alumni app at /portal.",
   "main": "app.js",
   "devDependencies": {
     "playwright": "^1.60.0",

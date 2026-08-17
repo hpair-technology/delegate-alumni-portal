@@ -495,7 +495,9 @@ const authMessage = (err) => AUTH_ERRORS[err?.code] || err?.message?.replace(/^F
 let allowlistCache = null;
 async function loadAllowlist() {
   if (allowlistCache) return allowlistCache;
-  const res = await fetch("./delegate_alumni_portal.csv", { cache: "no-store" });
+  // Absolute, not "./": this page is served at /portal, and a relative fetch
+  // would break the moment a host resolves that with a trailing slash.
+  const res = await fetch("/delegate_alumni_portal.csv", { cache: "no-store" });
   if (!res.ok) throw new Error("Could not load the alumni allowlist. Make sure the site is served over http:// and not opened as a file.");
   const text = await res.text();
   allowlistCache = new Set(

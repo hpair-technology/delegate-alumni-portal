@@ -2,7 +2,7 @@
    HPAIR Delegate Alumni Portal: design system
    ----------------------------------------------------------------------------
    Shared tokens live in :root and are used by both the landing page
-   (home.html, dark crimson + gold) and the portal (index.html, warm cream).
+   (index.html, dark crimson + gold) and the portal (portal.html, warm cream).
    Portal component styles are scoped under `body.portal`.
    ========================================================================== */
 
